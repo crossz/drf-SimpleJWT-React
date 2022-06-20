@@ -49,7 +49,7 @@ function App() {
                 <Nav className="justify-content-end">
                   <Nav.Link as={Link} to="/ping">Ping</Nav.Link>
                   { isUserLoggedIn() ?
-                    <Nav.Link as={Link} onClick={logout}>Logout</Nav.Link>
+                    <Nav.Link as={Link} to='/home' onClick={logout}>Logout</Nav.Link>
                     :
                     <Nav.Link as={Link} to="/login">Login</Nav.Link>
                   }

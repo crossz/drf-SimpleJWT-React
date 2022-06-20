@@ -25,3 +25,5 @@ static
 # For people using pipenv as well.
 Pipfile
 Pipfile.lock
+
+.venv

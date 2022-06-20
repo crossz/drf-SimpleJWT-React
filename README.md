@@ -10,6 +10,76 @@ here.
 
 Test user: `test` and pw `test`.
 
+
+## Demo
+
+django 的 `settings.py` 中对于 access_token 设置为 10 seconds 有效期, refresh_token 是 30 秒有效期.
+
+相应的, django 的 log 则会在每 10 seconds 会出现一次 token 过期导致的报错和重连, 如下:
+
+```
+[20/Jun/2022 01:31:50] "POST /api/token/both/ HTTP/1.1" 200 438
+Unauthorized: /api/ping/
+[20/Jun/2022 01:31:53] "GET /api/ping/?id=PONG HTTP/1.1" 401 58
+[20/Jun/2022 01:31:53] "POST /api/token/access/ HTTP/1.1" 200 218
+[20/Jun/2022 01:31:53] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:31:55] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:31:57] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:31:58] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:31:59] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:32:01] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:32:02] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+Unauthorized: /api/ping/
+[20/Jun/2022 01:32:03] "GET /api/ping/?id=PONG HTTP/1.1" 401 185
+[20/Jun/2022 01:32:03] "POST /api/token/access/ HTTP/1.1" 200 218
+[20/Jun/2022 01:32:03] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+
+
+
+
+
+Unauthorized: /api/ping/
+[20/Jun/2022 01:32:15] "GET /api/ping/?id=PONG HTTP/1.1" 401 183
+[20/Jun/2022 01:32:15] "POST /api/token/access/ HTTP/1.1" 200 218
+[20/Jun/2022 01:32:15] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:32:17] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:32:18] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:32:19] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+[20/Jun/2022 01:32:19] "GET /api/ping/?id=PONG HTTP/1.1" 200 13
+
+```
+
+
+### 通过 refresh_token 更新 access_token 的处理方式
+
+```
+const errorInterceptor = (error) => {
+  console.log('error: ', JSON.stringify(error))
+  const originalRequest = error.config;
+  const status = error.response.status;
+  if (isCorrectRefreshError(status)) {
+    return refreshToken().then((data)=> {
+      const headerAuthorization = `Bearer ${window.localStorage.getItem(ACCESS_TOKEN)}`;
+      authRequest.defaults.headers['Authorization'] = headerAuthorization;
+      originalRequest.headers['Authorization'] = 10;
+      return authRequest(originalRequest) // 更换了 access_token 后, 重新发 request
+    }).catch((error)=> {
+      // if token refresh fails, logout the user to avoid potential security risks.
+      logoutUser();
+      return Promise.reject(error)
+    })
+  }
+  return Promise.reject(error)
+}
+```
+
+
+
+
+----
+# Folked original repository
+
+
 ---
 ### Example repositories
 

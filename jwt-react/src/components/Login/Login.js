@@ -66,7 +66,7 @@ function Login() {
         <Form.Control
           onChange={(event)=>{setUsername(event.target.value)}}
           type="text"
-          id="username"
+          // id="username"
           name="username"/>
       </Form.Group>
       <br/>
@@ -75,7 +75,7 @@ function Login() {
         <Form.Control
           onChange={(event)=>{setPassword(event.target.value)}}
           type="text"
-          id="password"
+          // id="password"
           name="password"/>
       </Form.Group>
       <Button type="submit">login</Button>

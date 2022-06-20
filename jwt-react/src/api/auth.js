@@ -74,6 +74,7 @@ authRequest.interceptors.response.use(
 );
 
 const errorInterceptor = (error) => {
+  console.log('error: ', JSON.stringify(error))
   const originalRequest = error.config;
   const status = error.response.status;
   if (isCorrectRefreshError(status)) {
